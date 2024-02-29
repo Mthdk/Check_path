@@ -1,22 +1,26 @@
 import pandas as pd
 import os
+import logging
 
-def verifica_imagens(arquivo_relatorio, pasta_relatorio):
+# Configuração para suprimir avisos da biblioteca openpyxl
+logging.getLogger('openpyxl').setLevel(logging.ERROR)
+
+def verifica_imagens(arquivo_relatorio):
     # Verifica se o arquivo é CSV ou XLSX
     if arquivo_relatorio.endswith('.csv'):
         try:
-            df = pd.read_csv(os.path.join(pasta_relatorio, arquivo_relatorio))
+            df = pd.read_csv(arquivo_relatorio)
         except FileNotFoundError:
-            print("Arquivo CSV não encontrado.")
+            print(f"Arquivo CSV '{arquivo_relatorio}' não encontrado.")
             return
     elif arquivo_relatorio.endswith('.xlsx'):
         try:
-            df = pd.read_excel(os.path.join(pasta_relatorio, arquivo_relatorio))
+            df = pd.read_excel(arquivo_relatorio)
         except FileNotFoundError:
-            print("Arquivo XLSX não encontrado.")
+            print(f"Arquivo XLSX '{arquivo_relatorio}' não encontrado.")
             return
     else:
-        print("Formato de arquivo não suportado.")
+        print(f"Formato de arquivo '{arquivo_relatorio}' não suportado.")
         return
 
     # Adiciona uma coluna para indicar se a imagem existe ou não
@@ -25,13 +29,17 @@ def verifica_imagens(arquivo_relatorio, pasta_relatorio):
     # Salva o arquivo modificado
     novo_arquivo = f"verificado_{arquivo_relatorio}"
     if arquivo_relatorio.endswith('.csv'):
-        df.to_csv(os.path.join(pasta_relatorio, novo_arquivo), index=False)
+        df.to_csv(novo_arquivo, index=False)
     elif arquivo_relatorio.endswith('.xlsx'):
-        df.to_excel(os.path.join(pasta_relatorio, novo_arquivo), index=False)
+        df.to_excel(novo_arquivo, index=False)
 
     print(f"As informações sobre a existência das imagens foram adicionadas ao arquivo '{novo_arquivo}'.")
 
-# Exemplo de uso
-nome_arquivo_relatorio = input("Digite o nome do arquivo CSV ou XLSX do relatório: ")
-pasta_relatorio = input("Digite o caminho da pasta do relatório: ")
-verifica_imagens(nome_arquivo_relatorio, pasta_relatorio)
+# Diretório onde estão localizados os relatórios
+diretorio_relatorios = 'caminho/para/seu/diretorio'
+
+# Itera sobre os arquivos no diretório
+for arquivo in os.listdir(diretorio_relatorios):
+    if arquivo.endswith('.csv') or arquivo.endswith('.xlsx'):
+        caminho_arquivo = os.path.join(diretorio_relatorios, arquivo)
+        verifica_imagens(caminho_arquivo)
